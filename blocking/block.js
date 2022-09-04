@@ -4,9 +4,9 @@ const ACTION_GET_LOCK_TEXT = "getLockText";
 const KEY_ACTION = "action";
 const KEY_WINDOW_SIZE = "windowSize";
 
-window.onload = function() {
+window.onload = function () {
   const urlParams = new URLSearchParams(window.location.search);
-  const type = urlParams.get('t');
+  const type = urlParams.get("t");
   if (type) {
     let blockString;
     let substring = "";
@@ -21,25 +21,30 @@ window.onload = function() {
     document.getElementById("tpMsgBlocked").innerHTML = blockString;
     document.getElementById("tpMsgBlocklistName").innerHTML = substring;
   } else {
-    chrome.runtime.sendMessage({
-      [KEY_ACTION]: ACTION_GET_LOCK_TEXT
-    }, function (response) {
-      if (chrome.runtime.lastError) {
-        console.log("Error while sending message to the extension: " + chrome.runtime.lastError.message);
+    chrome.runtime.sendMessage(
+      {
+        [KEY_ACTION]: ACTION_GET_LOCK_TEXT,
+      },
+      function (response) {
+        if (chrome.runtime.lastError) {
+          console.log(
+            "Error while sending message to the extension: " +
+              chrome.runtime.lastError.message
+          );
+        }
+        if (response) {
+          document.getElementById("tpMsgBlocked").innerHTML = response;
+        }
+        document.getElementById("tpMsgBlocklistName").innerHTML = "";
       }
-      if (response) {
-        document.getElementById("tpMsgBlocked").innerHTML = response;
-      }
-      document.getElementById("tpMsgBlocklistName").innerHTML = "";
-    });
+    );
   }
   window.addEventListener("resize", function () {
     if (screen.width > window.innerWidth) {
       chrome.runtime.sendMessage({
         [KEY_ACTION]: ACTION_RESIZE,
-        [KEY_WINDOW_SIZE]: window.innerWidth + "x" +  window.innerHeight
+        [KEY_WINDOW_SIZE]: window.innerWidth + "x" + window.innerHeight,
       });
     }
   });
-
-}
+};

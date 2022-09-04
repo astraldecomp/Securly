@@ -12,7 +12,7 @@
     "128": "logo128.png"
   },
   "background": {
-    "scripts": ["c.js","f.js","lo.js"]
+    "scripts": ["c.js", "f.js", "lo.js"]
   },
   "browser_action": {
     "default_icon": {
@@ -43,9 +43,5 @@
   "externally_connectable": {
     "ids": ["*"]
   },
-  "web_accessible_resources": [
-    "*",
-    "blocking/*",
-    "fonts/*"
-  ]
+  "web_accessible_resources": ["*", "blocking/*", "fonts/*"]
 }

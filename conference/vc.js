@@ -1,7 +1,7 @@
 "use strict";
 var OV;
 var session = null;
-var token;			// Token retrieved from OpenVidu Server
+var token; // Token retrieved from OpenVidu Server
 var statsTimer;
 
 const KEY_COMMAND = "command";
@@ -10,31 +10,36 @@ const COMMAND_STOP_VIDEO_SESSION = "stopVideoConference";
 window.addEventListener("load", function () {
   const fullScreenButton = document.getElementById("tpFullScreenButton");
   fullScreenButton.addEventListener("click", function () {
-    document.getElementsByTagName("video")[0].requestFullscreen()
-        .then(() => {
-          console.log("Fullscreen requested");
-        })
+    document
+      .getElementsByTagName("video")[0]
+      .requestFullscreen()
+      .then(() => {
+        console.log("Fullscreen requested");
+      });
   });
 
   chrome.runtime.onMessage.addListener(function (message, sender, response) {
     console.log("Message: " + JSON.stringify(message));
-    if (message[KEY_COMMAND] === COMMAND_STOP_VIDEO_SESSION && session != null) {
+    if (
+      message[KEY_COMMAND] === COMMAND_STOP_VIDEO_SESSION &&
+      session != null
+    ) {
       leaveSession(true);
-      response({status: "disconnected"})
+      response({ status: "disconnected" });
     }
   });
 
-  sendMessage({action: "conference"})
-      .then((response) => {
-        let token = response["token"];
-        console.log("Received token=" + token);
-        if (token) {
-          joinSession(response["token"]);
-        }
-      })
-      .catch((error) => {
-        console.log("Failed to get session token from extension: " + error);
-      })
+  sendMessage({ action: "conference" })
+    .then((response) => {
+      let token = response["token"];
+      console.log("Received token=" + token);
+      if (token) {
+        joinSession(response["token"]);
+      }
+    })
+    .catch((error) => {
+      console.log("Failed to get session token from extension: " + error);
+    });
 });
 
 function joinSession(token) {
@@ -64,41 +69,47 @@ function joinSession(token) {
 
   session.on("sessionDisconnected", (event) => {
     let external = false;
-    if (event.reason === "sessionClosedByServer" ||
-        event.reason === "forceDisconnectByServer") {
+    if (
+      event.reason === "sessionClosedByServer" ||
+      event.reason === "forceDisconnectByServer"
+    ) {
       external = true;
     }
     cleanSessionView();
     leaveSession(external);
-  })
+  });
 
   session.on("reconnecting", () => {
     const titleElem = document.getElementById("tpPopupTitle");
     titleElem.innerHTML = "Video connection lost. Reconnecting...";
     titleElem.classList.add("disconnect");
     if (document.fullscreenElement) {
-      document.exitFullscreen()
-          .then(() => {
-            console.log("Closing full screen. Session tries to reconnect");
-          });
+      document.exitFullscreen().then(() => {
+        console.log("Closing full screen. Session tries to reconnect");
+      });
     } else {
       console.log("Session tries to reconnect");
     }
-  })
+  });
   session.on("reconnected", () => {
     const titleElem = document.getElementById("tpPopupTitle");
-    titleElem.innerHTML =  "Classroom screen share session";
+    titleElem.innerHTML = "Classroom screen share session";
     titleElem.classList.remove("disconnect");
     console.log("Session reconnected");
-  })
+  });
 
-  session.connect(token, {clientData: "Test student"})
-      .then(() => {
-        console.warn("Session connected successfully");
-      })
-      .catch(error => {
-        console.warn("There was an error connecting to the session: ", error.code, error.message);
-      });
+  session
+    .connect(token, { clientData: "Test student" })
+    .then(() => {
+      console.warn("Session connected successfully");
+    })
+    .catch((error) => {
+      console.warn(
+        "There was an error connecting to the session: ",
+        error.code,
+        error.message
+      );
+    });
   return false;
 }
 
@@ -115,12 +126,13 @@ function leaveSession(external) {
   const message = {
     action: "conference",
     command: "disconnect",
-    external: external
+    external: external,
   };
-  sendMessage(message)
-      .catch(error => {
-        console.log("Cannot send message='" + message + "' to extension. Error=" + error);
-      });
+  sendMessage(message).catch((error) => {
+    console.log(
+      "Cannot send message='" + message + "' to extension. Error=" + error
+    );
+  });
 }
 
 function sendMessage(messageObject) {
@@ -131,7 +143,7 @@ function sendMessage(messageObject) {
       } else {
         resolve(response);
       }
-    })
+    });
   });
 }
 
@@ -139,7 +151,7 @@ window.onbeforeunload = () => {
   if (session) {
     leaveSession(false);
   }
-}
+};
 
 function cleanSessionView() {
   console.log("Clean session view");
